@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-function Card({ item, onClick }) {
+function Card({ item, onClick, resolveImageUrl }) {
   const imageSrc =
     item.coverImageUrl && item.coverImageUrl.trim()
-      ? item.coverImageUrl
+      ? resolveImageUrl(item.coverImageUrl)
       : item.image || '/noImage.jpg'
 
   return (
@@ -36,7 +36,7 @@ function Card({ item, onClick }) {
   )
 }
 
-export default function List({ query = '', books = [], loading, isLast, onLoadMore, onDelete, onLike, onView }) {
+export default function List({ query = '', books = [], loading, isLast, onLoadMore, onDelete, onLike, onView, resolveImageUrl  }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
@@ -117,7 +117,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
       ) : (
         <section className="list-book-grid">
           {filteredItems.map((item) => (
-            <Card key={item.id} item={item} onClick={() => handleOpen(item)} />
+            <Card key={item.id} item={item} onClick={() => handleOpen(item)} resolveImageUrl={resolveImageUrl}/>
           ))}
         </section>
       )}
@@ -147,7 +147,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                   className="book-detail-image"
                   src={
                     selected.coverImageUrl && selected.coverImageUrl.trim()
-                      ? selected.coverImageUrl
+                      ? resolveImageUrl(selected.coverImageUrl)
                       : selected.image || '/noImage.jpg'
                   }
                   alt={selected.title}
