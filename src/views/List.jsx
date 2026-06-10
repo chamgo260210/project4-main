@@ -28,7 +28,6 @@ function Card({ item, onClick, resolveImageUrl }) {
           <div className="list-book-meta-right">
             <em>좋아요 {item.likes || 0}</em>
             <span className="list-book-views">조회 {item.views || 0}</span>
-            
           </div>
         </div>
       </div>
@@ -36,15 +35,14 @@ function Card({ item, onClick, resolveImageUrl }) {
   )
 }
 
-export default function List({ query = '', books = [], loading, isLast, onLoadMore, onDelete, onLike, onView, resolveImageUrl  }) {
+export default function List({ query = '', books = [], loading, isLast, onLoadMore, onDelete, onLike, onView, onSortChange, resolveImageUrl  }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
-  const observerRef = useRef() // 스크롤 다운 시, 하단 감지
+  const observerRef = useRef() 
 
   const selected = selectedId ? books.find((book) => book.id === selectedId) : null
 
-  // 하단 감지
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -61,18 +59,11 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase()
-
     if (!q) return books
-
     return books.filter((item) => {
       const title = item.title || ''
       const author = item.author || ''
-
-
-      return (
-        title.toLowerCase().includes(q) ||
-        author.toLowerCase().includes(q)
-      )
+      return title.toLowerCase().includes(q) || author.toLowerCase().includes(q)
     })
   }, [query, books])
 
@@ -92,10 +83,8 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
     setSelectedId(null)
   }
 
-
   const handleDeleteClick = async () => {
     if (!selected || !onDelete) return
-
     if (window.confirm('정말 이 도서를 삭제하시겠습니까?')) {
       await onDelete(selected.id)
       handleClose()
@@ -110,6 +99,20 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
 
   return (
     <div className="list-page-wrap">
+      {/* 정렬 버튼 영역 */}
+      <div className="sort-container" style={{ marginBottom: '20px', textAlign: 'right' }}>
+        <select 
+          className="sort-select" 
+          onChange={(e) => onSortChange(e.target.value)}
+          style={{ padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', backgroundColor: '#f0f0f0', border: '1px solid #ccc'
+           }}
+        >
+          <option value="createdAt">최신순</option>
+          <option value="views">조회순</option>
+          <option value="likes">좋아요순</option>
+        </select>
+      </div>
+
       {isEmpty ? (
         <p className="list-state-message">
           {isSearching ? '검색 결과가 없습니다. 다른 검색어를 입력해 보세요.' : '등록된 도서가 없습니다.'}
@@ -122,9 +125,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
         </section>
       )}
 
-      {/* 스크롤 감지 */}
       <div ref={observerRef} style={{ height: '1px' }} />  
-      {/* 스크롤 로딩 */}
       {loading && <p className="list-state-message">불러오는 중...</p>}
       {isLast && !loading && !isEmpty && <p className="list-state-message">모든 도서를 불러왔습니다 📚</p>}
 
@@ -136,13 +137,10 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                 <h3>{selected.title}</h3>
                 <p className="book-detail-author">작가: {selected.author || '저자 미상'}</p>
               </div>
-              <button type="button" className="book-detail-close" onClick={handleClose}>
-                닫기
-              </button>
+              <button type="button" className="book-detail-close" onClick={handleClose}>닫기</button>
             </div>
-
             <div className="book-detail-main">
-            <div className="book-detail-image-wrap">
+              <div className="book-detail-image-wrap">
                 <img
                   className="book-detail-image"
                   src={
@@ -153,37 +151,16 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                   alt={selected.title}
                 />
               </div>
-
               <p className="modal-subtitle">{selected.content}</p>
             </div>
             <div className="book-detail-actions">
               <div className="book-like-info">
-                <span>좋아요</span>
-                <strong>{selected.likes || 0}</strong>
-                <span>조회수</span>
-                <strong>{selected.views || 0}</strong>
+                <span>좋아요</span> <strong>{selected.likes || 0}</strong>
+                <span>조회수</span> <strong>{selected.views || 0}</strong>
               </div>
-                <button
-                type="button"
-                className="modal-button modal-button--delete"
-                onClick={handleDeleteClick}
-              >
-                삭제
-              </button>
-              <button type="button" className="book-like-button" onClick={handleLikeClick}>
-                <span aria-hidden="true">😍</span>
-                좋아요
-              </button>
-
-              <button
-                type="button"
-                className="modal-button modal-button--edit"
-                onClick={() => {
-                  navigate(`/update/${selected.id}`)
-                }}
-              >
-                수정
-              </button>
+              <button type="button" className="modal-button modal-button--delete" onClick={handleDeleteClick}>삭제</button>
+              <button type="button" className="book-like-button" onClick={handleLikeClick}><span>😍</span> 좋아요</button>
+              <button type="button" className="modal-button modal-button--edit" onClick={() => navigate(`/update/${selected.id}`)}>수정</button>
             </div>
           </section>
         </div>
@@ -191,4 +168,3 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
     </div>
   )
 }
-
