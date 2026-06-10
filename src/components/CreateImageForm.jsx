@@ -37,41 +37,50 @@ function CreateImageForm({ title,
   }, [])
 
   const handlePreviewImage = async () => {
-    const prompt = `
-                        # 역할
-                        너는 북커버 제작 담당자야.
+    // const prompt = `
+    //                     # 역할
+    //                     너는 북커버 제작 담당자야.
 
-                        # 지침
-                        - 북커버의 앞면 표지만을 보여줄 것
-                        - 전문적인 북커버 디자인, 높은 퀄리티의 일러스트레이션, 두드러진 시각적 표현, 작품에 적합한 안전성
-                        - 이야기의 분위기나 무드를 포함
+    //                     # 지침
+    //                     - 북커버의 앞면 표지만을 보여줄 것
+    //                     - 전문적인 북커버 디자인, 높은 퀄리티의 일러스트레이션, 두드러진 시각적 표현, 작품에 적합한 안전성
+    //                     - 이야기의 분위기나 무드를 포함
 
-                        # 책 정보
-                        - 제목 : "${title}"
-                        - 내용 요약 : ${content}.
-                        `
+    //                     # 책 정보
+    //                     - 제목 : "${title}"
+    //                     - 내용 요약 : ${content}.
+    //                     `
 
     try {
       alert('이미지 생성 시, 비용이 발생할 수 있습니다.');
       setLoading(true)
       setCoverImageUrl('/test_src/loading.gif')
 
-      const res = await fetch('https://api.openai.com/v1/images/generations', {
+      // const res = await fetch('https://api.openai.com/v1/images/generations', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${apiKey}`,
+      //   },
+      //   body: JSON.stringify({
+      //     model: 'gpt-image-2',
+      //     prompt,
+      //     n: 1,
+      //     size: imageSize,
+      //     quality,
+      //     output_format: 'png',
+      //   }),
+      // })
+      const res = await fetch(`http://localhost:8080/api/v1/books/cover?apiKey=${apiKey}&imageSize=${imageSize}`, {
         method: 'POST',
-        headers: {
+        headers: { 
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
+         },
         body: JSON.stringify({
-          model: 'gpt-image-2',
-          prompt,
-          n: 1,
-          size: imageSize,
-          quality,
-          output_format: 'png',
+          title: title,
+          content: content
         }),
       })
-
       
 
       if (!res.ok) {
@@ -84,13 +93,15 @@ function CreateImageForm({ title,
       }
 
       const data = await res.json()
-      const b64Json = data?.data?.[0]?.b64_json
+      const b64Json = data.b64Json;
+      
       if (!b64Json) throw new Error('이미지 데이터를 받지 못했습니다.')
 
-      setCoverImageUrl(`data:image/jpeg;base64,${b64Json}`)
+      setCoverImageUrl(`data:image/png;base64,${b64Json}`)
       alert('이미지 생성을 완료했습니다.')
     } catch (err) {
       console.error(err);
+      console.log(b64Json);
       alert('이미지 생성을 실패했습니다.')
     } finally {
       setLoading(false)

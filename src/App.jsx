@@ -23,6 +23,13 @@ function App() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
   const bookURL = `${API_BASE_URL}/api/v1/books`
 
+  // 백엔드의 이미지 디렉토리 연결
+  const resolveImageUrl = (url) => {
+  if (!url || !url.trim()) return null
+  if (url.startsWith('/uploads/')) return `${API_BASE_URL}${url}`
+  return url
+  }
+
   // [수정] sort 인자를 받도록 변경
   const fetchPage = useCallback(async (pageNum, sortOption = sortBy) => {
     if (loading || (pageNum > 0 && isLast)) return
@@ -162,11 +169,12 @@ function App() {
                 onLike={handleLike} 
                 onView={handleView}
                 onSortChange={handleSortChange} // [연결 완료]
+                resolveImageUrl={resolveImageUrl}
               />
             </>
           } />
           <Route path="/create" element={<Create onCreate={handleAddBook}/>} />
-          <Route path="/update/:id" element={<Update bookURL={bookURL} onUpdate={handleUpdateBook} />} />
+          <Route path="/update/:id" element={<Update bookURL={bookURL} onUpdate={handleUpdateBook} resolveImageUrl={resolveImageUrl}/>} />
         </Routes>
       </main>
       <Lower />

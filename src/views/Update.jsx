@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import UpdateForm from '../components/UpdateForm'
 
-export default function Update({ bookURL, onUpdate }) {
+export default function Update({ bookURL, onUpdate, resolveImageUrl}) {
   const { id } = useParams()
   const navigate = useNavigate()
 
@@ -39,10 +39,15 @@ export default function Update({ bookURL, onUpdate }) {
   const handleSubmit = async (updatedFields) => {
     // 만약 이미지가 있다면(coverImageUrl이 있다면), 백엔드 API를 호출하여 따로 저장합니다.
     if (updatedFields.coverImageUrl) {
-      await fetch(`/api/v1/books/${id}/cover-update`, {
+      await fetch(`${bookURL}/${id}/cover-update`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ coverImageUrl: updatedFields.coverImageUrl }),
+        body: JSON.stringify({ 
+          title: updatedFields.title,
+          author: updatedFields.author,
+          content: updatedFields.content,
+          coverImageUrl: updatedFields.coverImageUrl 
+        }),
       });
     }
 
@@ -72,6 +77,7 @@ export default function Update({ bookURL, onUpdate }) {
       initialBook={book}
       onSubmit={handleSubmit}
       onCancel={() => navigate('/list')}
+      resolveImageUrl={resolveImageUrl}
     />
   )
 }
