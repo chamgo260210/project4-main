@@ -126,7 +126,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
       <div ref={observerRef} style={{ height: '1px' }} />  
       {/* 스크롤 로딩 */}
       {loading && <p className="list-state-message">불러오는 중...</p>}
-      {isLast && !loading && <p className="list-state-message">모든 도서를 불러왔습니다 📚</p>}
+      {isLast && !loading && !isEmpty && <p className="list-state-message">모든 도서를 불러왔습니다 📚</p>}
 
       {open && selected && (
         <div className="book-modal-overlay" onClick={handleClose}>
