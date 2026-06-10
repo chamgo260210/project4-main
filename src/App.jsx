@@ -174,7 +174,7 @@ function App() {
             </>
           } />
           <Route path="/create" element={<Create onCreate={handleAddBook}/>} />
-          <Route path="/update/:id" element={<Update bookURL={bookURL} onUpdate={handleUpdateBook} />} />
+          <Route path="/update/:id" element={<Update bookURL={bookURL} onUpdate={handleUpdateBook} resolveImageUrl={resolveImageUrl}/>} />
         </Routes>
       </main>
       <Lower />

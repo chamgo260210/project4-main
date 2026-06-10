@@ -3,8 +3,13 @@ import InputInfo from './InputInfo'
 import UpdateImageControls from './UpdateImageControls'
 import UpdatePreviewCard from './UpdateImagePreview'
 
-function normalizeImageSrc(src) {
+function normalizeImageSrc(src, resolveImageUrl) {
   if (!src || !src.trim()) return '/public/noImage.jpg'
+
+  // /uploads/ 경로면 백엔드 절대경로로 변환
+  if (src.startsWith('/uploads/') && resolveImageUrl) {
+    return resolveImageUrl(src)
+  }
 
   if (
     src.startsWith('data:') ||
@@ -37,7 +42,7 @@ function getSavableImageUrl(imageUrl) {
   return imageUrl
 }
 
-function UpdateForm({ initialBook, onSubmit, onCancel }) {
+function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
   const [title, setTitle] = useState(initialBook.title || '')
   const [author, setAuthor] = useState(initialBook.author || '')
   const [content, setContent] = useState(initialBook.content || '')
@@ -48,43 +53,53 @@ function UpdateForm({ initialBook, onSubmit, onCancel }) {
   const [imageLoading, setImageLoading] = useState(false)
 
   const [coverImageUrl, setCoverImageUrl] = useState(
-    normalizeImageSrc(initialBook.coverImageUrl || initialBook.image)
+    normalizeImageSrc(initialBook.coverImageUrl || initialBook.image, resolveImageUrl)
   )
 
   const handlePreviewImage = async () => {
-    const prompt = `
-# 역할
-너는 북커버 제작 담당자야.
+//     const prompt = `
+// # 역할
+// 너는 북커버 제작 담당자야.
 
-# 지침
-- 북커버의 앞면 표지만을 보여줄 것
-- 전문적인 북커버 디자인, 높은 퀄리티의 일러스트레이션, 두드러진 시각적 표현, 작품에 적합한 안전성
-- 이야기의 분위기나 무드를 포함
+// # 지침
+// - 북커버의 앞면 표지만을 보여줄 것
+// - 전문적인 북커버 디자인, 높은 퀄리티의 일러스트레이션, 두드러진 시각적 표현, 작품에 적합한 안전성
+// - 이야기의 분위기나 무드를 포함
 
-# 책 정보
-- 제목 : "${title}"
-- 작가 : "${author}"
-- 내용 요약 : ${content}.
-`
+// # 책 정보
+// - 제목 : "${title}"
+// - 작가 : "${author}"
+// - 내용 요약 : ${content}.
+// `
 
 try {
       alert('이미지 생성 시, 비용이 발생할 수 있습니다.');
       setImageLoading(true)
       setCoverImageUrl('/test_src/loading.gif')
 
-      const res = await fetch('https://api.openai.com/v1/images/generations', {
+      // const res = await fetch('https://api.openai.com/v1/images/generations', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     Authorization: `Bearer ${apiKey}`,
+      //   },
+      //   body: JSON.stringify({
+      //     model: 'gpt-image-2',
+      //     prompt,
+      //     n: 1,
+      //     size: imageSize,
+      //     quality,
+      //     output_format: 'png',
+      //   }),
+      // })
+      const res = await fetch(`http://localhost:8080/api/v1/books/cover?apiKey=${apiKey}&imageSize=${imageSize}`, {
         method: 'POST',
-        headers: {
+        headers: { 
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
+         },
         body: JSON.stringify({
-          model: 'gpt-image-2',
-          prompt,
-          n: 1,
-          size: imageSize,
-          quality,
-          output_format: 'png',
+          title: title,
+          content: content
         }),
       })
 
@@ -100,7 +115,7 @@ try {
       }
 
       const data = await res.json()
-      const b64Json = data?.data?.[0]?.b64_json
+      const b64Json = data.b64Json;
 
       if (!b64Json) {
         throw new Error('이미지 데이터를 받지 못했습니다.')
@@ -159,6 +174,7 @@ try {
           title={title}
           quality={quality}
           imageSize={imageSize}
+          resolveImageUrl = {resolveImageUrl}
         />
       </div>
     </section>

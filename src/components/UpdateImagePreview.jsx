@@ -17,8 +17,8 @@ function normalizeImageSrc(src) {
   return `/${src}`
 }
 
-function UpdatePreviewCard({ coverImageUrl, title, quality, imageSize }) {
-  const imageSrc = normalizeImageSrc(coverImageUrl)
+function UpdatePreviewCard({ coverImageUrl, title, quality, imageSize, resolveImageUrl }) {
+  const imageSrc = normalizeImageSrc(coverImageUrl, resolveImageUrl )
 
   return (
     <aside className="create-preview-card">
