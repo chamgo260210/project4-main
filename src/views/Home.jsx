@@ -43,7 +43,9 @@ function Home({ books = [] }) {
         목록 페이지에서 자세한 정보를 확인할 수 있습니다.
       </p>
 
-      {popularBooks.length === 0 ? (
+      {loading ? (
+        <p className="home-empty-message">불러오는 중...</p>
+      ) : popularBooks.length === 0 ? (
         <p className="home-empty-message">등록된 도서가 없습니다.</p>
       ) : (
       <div className="home-book-grid">

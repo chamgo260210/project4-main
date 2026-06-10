@@ -113,7 +113,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
         </select>
       </div>
 
-      {isEmpty ? (
+      {isEmpty && !loading ? (
         <p className="list-state-message">
           {isSearching ? '검색 결과가 없습니다. 다른 검색어를 입력해 보세요.' : '등록된 도서가 없습니다.'}
         </p>
