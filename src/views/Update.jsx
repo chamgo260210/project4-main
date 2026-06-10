@@ -37,10 +37,22 @@ export default function Update({ bookURL, onUpdate }) {
   }, [id, bookURL])
 
   const handleSubmit = async (updatedFields) => {
+    // 만약 이미지가 있다면(coverImageUrl이 있다면), 백엔드 API를 호출하여 따로 저장합니다.
+    if (updatedFields.coverImageUrl) {
+      await fetch(`/api/v1/books/${id}/cover-update`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ coverImageUrl: updatedFields.coverImageUrl }),
+      });
+    }
+
+    // 나머지 정보(제목, 내용 등)를 업데이트합니다. (기존 로직 유지)
     await onUpdate(id, {
       ...updatedFields,
       updatedAt: new Date().toISOString(),
-    })
+    });
+    
+    navigate('/list');
   }
 
   if (loading) {
