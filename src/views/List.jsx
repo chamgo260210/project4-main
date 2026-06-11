@@ -25,10 +25,13 @@ function Card({ item, onClick, resolveImageUrl }) {
         <h3>{item.title}</h3>
         <div className="list-book-meta">
           <p className="list-book-author">작가: {item.author || '저자 미상'}</p>
-          <div className="list-book-meta-right">
-            <em>좋아요 {item.likes || 0}</em>
-            <span className="list-book-views">조회 {item.views || 0}</span>
-          </div>
+          {item.category && (
+            <span className="list-book-category">{item.category}</span>
+          )}
+        </div>
+        <div className="list-book-meta-right">
+          <em>좋아요 {item.likes || 0}</em>
+          <span className="list-book-views">조회 {item.views || 0}</span>
         </div>
       </div>
     </article>
