@@ -3,6 +3,7 @@ import InputInfo from './InputInfo'
 import CreateImageForm from './CreateImageForm'
 
 function CreateForm({ onAddBook, onCancel }) {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
@@ -12,7 +13,7 @@ function CreateForm({ onAddBook, onCancel }) {
   const [selectedCategory, setSelectedCategory] = useState('')
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/books/categories')
+    fetch(`${API_BASE_URL}/api/v1/books/categories`)
       .then((res) => res.json())
       .then((data) => setCategories(data))
       .catch((err) => console.error("카테고리 로딩 실패:", err))
