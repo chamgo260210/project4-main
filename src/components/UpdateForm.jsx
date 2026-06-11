@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import InputInfo from './InputInfo'
 import UpdateImageControls from './UpdateImageControls'
 import UpdatePreviewCard from './UpdateImagePreview'
 
 function normalizeImageSrc(src, resolveImageUrl) {
-  if (!src || !src.trim()) return '/public/noImage.jpg'
+  if (!src || !src.trim()) return '/public/noImage.png'
 
   // /uploads/ 경로면 백엔드 절대경로로 변환
   if (src.startsWith('/uploads/') && resolveImageUrl) {
@@ -36,7 +36,7 @@ function getSavableImageUrl(imageUrl) {
   ]
 
   if (!imageUrl || invalidPreviewImages.includes(imageUrl)) {
-    return '/noImage.jpg'
+    return '/noImage.png'
   }
 
   return imageUrl
@@ -51,10 +51,19 @@ function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
   const [imageSize, setImageSize] = useState('768x1024')
   const [apiKey, setApiKey] = useState('')
   const [imageLoading, setImageLoading] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState(initialBook.category || '기타')
 
   const [coverImageUrl, setCoverImageUrl] = useState(
     normalizeImageSrc(initialBook.coverImageUrl || initialBook.image, resolveImageUrl)
   )
+
+  useEffect(() => {
+    fetch('http://localhost:8080/api/v1/books/categories')
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("카테고리 로딩 실패:", err))
+  }, [])
 
   const handlePreviewImage = async () => {
 //     const prompt = `
@@ -153,6 +162,9 @@ try {
             setAuthor={setAuthor}
             content={content}
             setContent={setContent}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
           />
 
           <UpdateImageControls

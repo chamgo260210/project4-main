@@ -11,7 +11,7 @@ function getSavableImageUrl(imageUrl) {
   ]
 
   if (!imageUrl || invalidPreviewImages.includes(imageUrl)) {
-    return '/noImage.jpg'
+    return '/noImage.png'
   }
 
   return imageUrl
