@@ -13,7 +13,7 @@ const getCategoryDisplay = (category) => {
   return CATEGORY_MAP[category] || category
 }
 
-function Home({ books = [] }) {
+function Home({ books = [], resolveImageUrl }) {
   const [popularBooks, setPopularBooks] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -62,10 +62,12 @@ function Home({ books = [] }) {
       ) : (
       <div className="home-book-grid">
         {popularBooks.map((book) => {
-        const imageSrc =
-  book.coverImageUrl && book.coverImageUrl.trim()
-    ? book.coverImageUrl
-    : book.image || '/noImage.jpg'
+          const imageSrc =
+            book.coverImageUrl && book.coverImageUrl.trim()
+              ? resolveImageUrl
+                ? resolveImageUrl(book.coverImageUrl)
+                : book.coverImageUrl
+              : book.image || '/noImage.png'
         
           return (
             <article className="home-book-card" key={book.id}>
