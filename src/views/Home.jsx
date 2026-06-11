@@ -1,23 +1,30 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-// 카테고리 enum 매핑
-const CATEGORY_MAP = {
-  FICTION: '소설',
-  TECHNOLOGY: '기술/IT',
-  SELF_HELP: '자기계발',
-  ETC: '기타'
-}
-
-const getCategoryDisplay = (category) => {
-  return CATEGORY_MAP[category] || category
-}
-
 function Home({ books = [], resolveImageUrl }) {
   const [popularBooks, setPopularBooks] = useState([])
   const [loading, setLoading] = useState(true)
+  const [categoryMap, setCategoryMap] = useState({})
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
+
+  const getCategoryDisplay = (category) => {
+    return categoryMap[category] || category
+  }
+
+  useEffect(() => {
+    // 카테고리 데이터 받아오기
+    fetch(`${API_BASE_URL}/api/v1/books/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        const map = {}
+        data.forEach(cat => {
+          map[cat.name] = cat.description
+        })
+        setCategoryMap(map)
+      })
+      .catch((err) => console.error("카테고리 로딩 실패:", err))
+  }, [API_BASE_URL])
 
   useEffect(() => {
     async function fetchPopular() {
@@ -37,7 +44,7 @@ function Home({ books = [], resolveImageUrl }) {
     }
 
     fetchPopular()
-  }, [])
+  }, [API_BASE_URL])
 
   return (
     <section className="home-book-section">

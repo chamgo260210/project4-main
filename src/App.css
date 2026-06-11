@@ -757,6 +757,14 @@
   width: 100%;
 }
 
+.create-write-form > label {
+  display: grid;
+  gap: 8px;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .create-two-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1417,6 +1425,20 @@
   flex-shrink: 0;
 }
 
+.create-image-controls {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
+.create-image-controls > label {
+  display: grid;
+  gap: 8px;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 900;
+}
+
 .create-preview-image-box {
   width: 100%;
   aspect-ratio: 3 / 4;
@@ -1433,3 +1455,5 @@
   object-fit: contain;
   display: block;
 }
+
+
