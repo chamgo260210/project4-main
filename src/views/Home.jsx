@@ -53,7 +53,7 @@ function Home({ books = [] }) {
         const imageSrc =
   book.coverImageUrl && book.coverImageUrl.trim()
     ? book.coverImageUrl
-    : book.image || '/noImage.png'
+    : book.image || '/noImage.jpg'
           return (
             <article className="home-book-card" key={book.id}>
               <img

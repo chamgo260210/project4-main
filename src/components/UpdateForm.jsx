@@ -4,7 +4,7 @@ import UpdateImageControls from './UpdateImageControls'
 import UpdatePreviewCard from './UpdateImagePreview'
 
 function normalizeImageSrc(src, resolveImageUrl) {
-  if (!src || !src.trim()) return '/public/noImage.png'
+  if (!src || !src.trim()) return '/public/noImage.jpg'
 
   // /uploads/ 경로면 백엔드 절대경로로 변환
   if (src.startsWith('/uploads/') && resolveImageUrl) {
@@ -36,7 +36,7 @@ function getSavableImageUrl(imageUrl) {
   ]
 
   if (!imageUrl || invalidPreviewImages.includes(imageUrl)) {
-    return '/noImage.png'
+    return '/noImage.jpg'
   }
 
   return imageUrl
