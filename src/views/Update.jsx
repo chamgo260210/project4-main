@@ -37,20 +37,23 @@ export default function Update({ bookURL, onUpdate, resolveImageUrl}) {
   }, [id, bookURL])
 
   const handleSubmit = async (updatedFields) => {
+    // 아래 부분은 이중 PATCH 입니다. 
+    // BookEntity에서 title,author,content가 강제되고, coverImageUrl만 별도로 보낼 수 없습니다. 
+
     // 만약 이미지가 있다면(coverImageUrl이 있다면), 백엔드 API를 호출하여 따로 저장합니다.
-    if (updatedFields.coverImageUrl) {
-      await fetch(`${bookURL}/${id}/cover-update`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          title: updatedFields.title,
-          author: updatedFields.author,
-          content: updatedFields.content,
-          category: updatedFields.category,
-          coverImageUrl: updatedFields.coverImageUrl 
-        }),
-      });
-    }
+    // if (updatedFields.coverImageUrl) {
+    //   await fetch(`${bookURL}/${id}/cover-update`, {
+    //     method: 'PATCH',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ 
+    //       title: updatedFields.title,
+    //       author: updatedFields.author,
+    //       content: updatedFields.content,
+    //       category: updatedFields.category,
+    //       coverImageUrl: updatedFields.coverImageUrl 
+    //     }),
+    //   });
+    // }
 
     // 나머지 정보(제목, 내용 등)를 업데이트합니다. (기존 로직 유지)
     await onUpdate(id, {
