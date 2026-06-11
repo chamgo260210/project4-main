@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import InputInfo from './InputInfo'
 import UpdateImageControls from './UpdateImageControls'
 import UpdatePreviewCard from './UpdateImagePreview'
@@ -48,8 +48,9 @@ function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
   const [title, setTitle] = useState(initialBook.title || '')
   const [author, setAuthor] = useState(initialBook.author || '')
   const [content, setContent] = useState(initialBook.content || '')
-  const [category, setCategory] = useState(initialBook.category || '')
-  const [categoryList, setCategoryList] = useState([])
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState(initialBook.category || '')
+
   const [quality, setQuality] = useState('medium')
   const [imageSize, setImageSize] = useState('768x1024')
   const [apiKey, setApiKey] = useState('')
@@ -65,6 +66,17 @@ function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
   const [coverImageUrl, setCoverImageUrl] = useState(
     normalizeImageSrc(initialBook.coverImageUrl || initialBook.image, resolveImageUrl)
   )
+
+  useEffect(() => {
+    console.log("카테고리 fetch 시작")
+    fetch('http://localhost:8080/api/v1/books/categories')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("카테고리 데이터:", data)
+        setCategories(data)
+      })
+      .catch((err) => console.error("카테고리 로딩 실패:", err))
+  }, [])
 
   const handlePreviewImage = async () => {
 //     const prompt = `
@@ -165,9 +177,9 @@ try {
             setAuthor={setAuthor}
             content={content}
             setContent={setContent}
-            categories={categoryList}
-            selectedCategory={category}
-            setSelectedCategory={setCategory}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
           />
 
           <UpdateImageControls

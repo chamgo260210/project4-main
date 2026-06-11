@@ -46,6 +46,7 @@ function CreateForm({ onAddBook, onCancel }) {
           coverImageUrl={coverImageUrl}
           setCoverImageUrl={setCoverImageUrl}
           selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
         />
       </div>
     </section>
