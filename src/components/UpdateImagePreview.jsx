@@ -1,5 +1,5 @@
 function normalizeImageSrc(src) {
-  if (!src || !src.trim()) return '/public/noImage.png'
+  if (!src || !src.trim()) return '/public/noImage.jpg'
 
   if (
     src.startsWith('data:') ||

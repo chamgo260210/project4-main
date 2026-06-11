@@ -161,7 +161,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                   src={
                     selected.coverImageUrl && selected.coverImageUrl.trim()
                       ? resolveImageUrl(selected.coverImageUrl)
-                      : selected.image || '/noImage.png'
+                      : selected.image || '/noImage.jpg'
                   }
                   alt={selected.title}
                 />
