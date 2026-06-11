@@ -40,7 +40,15 @@ function App() {
       if (!res.ok) { throw new Error('도서 목록을 불러오지 못했습니다.') }
       const data = await res.json()
       
-      setBooks(prev => pageNum === 0 ? data.content : [...prev, ...data.content])
+      setBooks(prev => {
+        if (pageNum === 0) return data.content
+
+        const merged = [...prev, ...data.content]
+        return Array.from(
+          new Map(merged.map(book => [book.id, book])).values()
+        )
+      })
+
       setIsLast(data.last)
       setPage(data.number + 1)
     } catch (err) {
@@ -115,13 +123,24 @@ function App() {
   }
 
   const handleLike = async (id) => {
-    try {
-      const res = await fetch(`${bookURL}/${id}/likes`, { method: 'PATCH' })
-      if (!res.ok) throw new Error('좋아요 처리에 실패했습니다.')
-      const updated = await res.json()
-      setBooks((prevBooks) => prevBooks.map((book) => String(book.id) === String(id) ? updated : book))
-    } catch (err) {
-      console.error(err)
+  try {
+    const res = await fetch(`${bookURL}/${id}/likes`, { method: 'PATCH' })
+
+    if (res.status === 429) {
+      const data = await res.json().catch(() => ({}))
+      alert(data.message || '좋아요는 잠시 후 다시 시도해주세요.')
+      return
+    }
+
+    if (!res.ok) throw new Error('좋아요 처리에 실패했습니다.')
+
+    const updated = await res.json()
+    setBooks((prevBooks) =>
+      prevBooks.map((book) => String(book.id) === String(id) ? updated : book)
+    )
+  } catch (err) {
+    console.error(err)
+    alert('좋아요 처리 중 오류가 발생했습니다.')
     }
   }
 
@@ -144,7 +163,15 @@ function App() {
       <Header />
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Home books={books} />} />
+          <Route
+            path="/"
+            element={
+              <Home
+                books={books}
+                resolveImageUrl={resolveImageUrl}
+              />
+            }
+          />
           <Route path="/list" element={
             <>
               <div className="list-search-area">

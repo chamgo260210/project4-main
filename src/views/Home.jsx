@@ -1,7 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-function Home({ books = [] }) {
+// 카테고리 enum 매핑
+const CATEGORY_MAP = {
+  FICTION: '소설',
+  TECHNOLOGY: '기술/IT',
+  SELF_HELP: '자기계발',
+  ETC: '기타'
+}
+
+const getCategoryDisplay = (category) => {
+  return CATEGORY_MAP[category] || category
+}
+
+function Home({ books = [], resolveImageUrl }) {
   const [popularBooks, setPopularBooks] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -50,10 +62,13 @@ function Home({ books = [] }) {
       ) : (
       <div className="home-book-grid">
         {popularBooks.map((book) => {
-        const imageSrc =
-  book.coverImageUrl && book.coverImageUrl.trim()
-    ? book.coverImageUrl
-    : book.image || '/noImage.jpg'
+          const imageSrc =
+            book.coverImageUrl && book.coverImageUrl.trim()
+              ? resolveImageUrl
+                ? resolveImageUrl(book.coverImageUrl)
+                : book.coverImageUrl
+              : book.image || '/noImage.png'
+        
           return (
             <article className="home-book-card" key={book.id}>
               <img
@@ -63,7 +78,12 @@ function Home({ books = [] }) {
               />
               <div className="home-book-card-info">
                 <strong>{book.title}</strong>
-                <span>작가: {book.author || '작가 미상'}</span>
+                <div className="home-book-meta">
+                  <span>작가: {book.author || '작가 미상'}</span>
+                  {book.category && (
+                    <span className="home-book-category">{getCategoryDisplay(book.category)}</span>
+                  )}
+                </div>
                 <em>좋아요 {book.likes || 0}</em>
               </div>
             </article>

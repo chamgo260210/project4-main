@@ -46,6 +46,7 @@ export default function Update({ bookURL, onUpdate, resolveImageUrl}) {
           title: updatedFields.title,
           author: updatedFields.author,
           content: updatedFields.content,
+          category: updatedFields.category,
           coverImageUrl: updatedFields.coverImageUrl 
         }),
       });
