@@ -65,13 +65,6 @@ function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
     normalizeImageSrc(initialBook.coverImageUrl || initialBook.image, resolveImageUrl)
   )
 
-  useEffect(() => {
-    fetch('http://localhost:8080/api/v1/books/categories')
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .catch((err) => console.error("카테고리 로딩 실패:", err))
-  }, [])
-
   const handlePreviewImage = async () => {
 //     const prompt = `
 // # 역할
