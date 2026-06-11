@@ -28,11 +28,19 @@ function InputInfo({ title, setTitle, author, setAuthor, content, setContent, ca
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <option value="">선택하세요</option>
-          {categories && categories.map((cat) => (
-            <option key={cat.name} value={cat.name}>
-              {cat.description}
+          {selectedCategory && categories && (
+            <option value={selectedCategory} key={selectedCategory}>
+              {categories.find(cat => cat.name === selectedCategory)?.description}
             </option>
-          ))}
+          )}
+          {categories && categories.map((cat) => {
+            if (selectedCategory && cat.name === selectedCategory) return null
+            return (
+              <option key={cat.name} value={cat.name}>
+                {cat.description}
+              </option>
+            )
+          })}
         </select>
       </label>
 

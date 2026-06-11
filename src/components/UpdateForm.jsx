@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState,useEffect } from 'react'
 import InputInfo from './InputInfo'
 import UpdateImageControls from './UpdateImageControls'
 import UpdatePreviewCard from './UpdateImagePreview'
@@ -42,28 +42,28 @@ function getSavableImageUrl(imageUrl) {
   return imageUrl
 }
 
+
 function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
   const [title, setTitle] = useState(initialBook.title || '')
   const [author, setAuthor] = useState(initialBook.author || '')
   const [content, setContent] = useState(initialBook.content || '')
-
+  const [category, setCategory] = useState(initialBook.category || '')
+  const [categoryList, setCategoryList] = useState([])
   const [quality, setQuality] = useState('medium')
   const [imageSize, setImageSize] = useState('768x1024')
   const [apiKey, setApiKey] = useState('')
   const [imageLoading, setImageLoading] = useState(false)
-  const [categories, setCategories] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState(initialBook.category || '기타')
-
-  const [coverImageUrl, setCoverImageUrl] = useState(
-    normalizeImageSrc(initialBook.coverImageUrl || initialBook.image, resolveImageUrl)
-  )
 
   useEffect(() => {
     fetch('http://localhost:8080/api/v1/books/categories')
       .then((res) => res.json())
-      .then((data) => setCategories(data))
+      .then((data) => setCategoryList(data))
       .catch((err) => console.error("카테고리 로딩 실패:", err))
   }, [])
+
+  const [coverImageUrl, setCoverImageUrl] = useState(
+    normalizeImageSrc(initialBook.coverImageUrl || initialBook.image, resolveImageUrl)
+  )
 
   const handlePreviewImage = async () => {
 //     const prompt = `
@@ -145,9 +145,11 @@ try {
       title,
       author,
       content,
+      category,
       coverImageUrl: getSavableImageUrl(coverImageUrl),
     })
   }
+  
 
   return (
     <section className="create-write-page">
@@ -162,9 +164,9 @@ try {
             setAuthor={setAuthor}
             content={content}
             setContent={setContent}
-            categories={categories}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
+            categories={categoryList}
+            selectedCategory={category}
+            setSelectedCategory={setCategory}
           />
 
           <UpdateImageControls
@@ -186,6 +188,7 @@ try {
           title={title}
           quality={quality}
           imageSize={imageSize}
+          category={category}
           resolveImageUrl = {resolveImageUrl}
         />
       </div>
