@@ -1,4 +1,4 @@
-function InputInfo({ title, setTitle, author, setAuthor, content, setContent }) {
+function InputInfo({ title, setTitle, author, setAuthor, content, setContent, categories, selectedCategory, setSelectedCategory }) {
   return (
     <>
       <div className="create-two-columns">
@@ -20,6 +20,21 @@ function InputInfo({ title, setTitle, author, setAuthor, content, setContent }) 
           />
         </label>
       </div>
+
+      <label>
+        카테고리
+        <select
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <option value="">선택하세요</option>
+          {categories && categories.map((cat) => (
+            <option key={cat.name} value={cat.name}>
+              {cat.description}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label>
         내용

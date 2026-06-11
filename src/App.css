@@ -710,6 +710,7 @@
   text-align: left;
 }
 
+
 .create-write-title {
   margin: 0 0 28px;
   color: var(--color-navy);
@@ -737,12 +738,30 @@
   gap: 16px;
 }
 
+.create-two-columns select {
+  display: block;
+  width: 100%;
+}
+
 .create-write-form label {
   display: grid;
   gap: 8px;
   color: #111827;
   font-size: 13px;
   font-weight: 900;
+}
+
+.create-write-form select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-cool);
+  background: #eef2f6;
+  padding: 13px 14px;
+  color: var(--color-navy);
+  font: inherit;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
 }
 
 .create-write-form input,

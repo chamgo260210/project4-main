@@ -22,7 +22,7 @@ function CreateImageForm({ title,
                            content,
                            quality, setQuality,
                            coverImageUrl, setCoverImageUrl,
-                           onAddBook, onCancel }) {
+                           onAddBook, onCancel, selectedCategory }) {
 
   const [createdAt, setCreatedAt] = useState('')
   const [updatedAt, setUpdatedAt] = useState('')
@@ -128,6 +128,7 @@ function CreateImageForm({ title,
       content,
       likes: 0,
       views: 0,
+      category: selectedCategory,
       coverImageUrl: getSavableImageUrl(coverImageUrl),
     }
 
@@ -153,7 +154,7 @@ function CreateImageForm({ title,
                     입력 작성 후 이미지 생성하기를 누르고, 기다리시면 생성된 이미지가 보입니다.
                 </span>
             </aside>
-            <div className="create-write-form">
+            <div className="create-image-controls">
                 <label>
                     api키
                     <MaskedApiKeyInput value={apiKey} onChange={setApiKey} />
