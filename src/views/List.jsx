@@ -1,6 +1,18 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+// 카테고리 enum 매핑
+const CATEGORY_MAP = {
+  FICTION: '소설',
+  TECHNOLOGY: '기술/IT',
+  SELF_HELP: '자기계발',
+  ETC: '기타'
+}
+
+const getCategoryDisplay = (category) => {
+  return CATEGORY_MAP[category] || category
+}
+
 function Card({ item, onClick, resolveImageUrl }) {
   const imageSrc =
     item.coverImageUrl && item.coverImageUrl.trim()
@@ -25,14 +37,14 @@ function Card({ item, onClick, resolveImageUrl }) {
         <h3>{item.title}</h3>
         <div className="list-book-meta">
           <p className="list-book-author">작가: {item.author || '저자 미상'}</p>
-          {item.category && (
-            <span className="list-book-category">{item.category}</span>
-          )}
         </div>
         <div className="list-book-meta-right">
           <em>좋아요 {item.likes || 0}</em>
           <span className="list-book-views">조회 {item.views || 0}</span>
         </div>
+        {item.category && (
+          <span className="list-book-category">{getCategoryDisplay(item.category)}</span>
+        )}
       </div>
     </article>
   )
@@ -149,7 +161,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                   src={
                     selected.coverImageUrl && selected.coverImageUrl.trim()
                       ? resolveImageUrl(selected.coverImageUrl)
-                      : selected.image || '/noImage.jpg'
+                      : selected.image || '/noImage.png'
                   }
                   alt={selected.title}
                 />
@@ -161,6 +173,9 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                 <span>좋아요</span> <strong>{selected.likes || 0}</strong>
                 <span>조회수</span> <strong>{selected.views || 0}</strong>
               </div>
+              {selected.category && (
+                <span className="book-detail-category">{getCategoryDisplay(selected.category)}</span>
+              )}
               <button type="button" className="modal-button modal-button--delete" onClick={handleDeleteClick}>삭제</button>
               <button type="button" className="book-like-button" onClick={handleLikeClick}><span>😍</span> 좋아요</button>
               <button type="button" className="modal-button modal-button--edit" onClick={() => navigate(`/update/${selected.id}`)}>수정</button>

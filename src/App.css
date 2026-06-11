@@ -371,13 +371,16 @@
 }
 
 .list-book-category {
+  display: block;
+  margin-top: 8px;
   background-color: #e8e8e8;
-  color: #ff0000;
+  color: #333;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+  width: fit-content;
 }
 
 /* ImageGrid styles */
@@ -676,6 +679,18 @@
 .book-like-info strong {
   color: var(--color-gold-dark);
   font-size: 15px;
+}
+
+.book-detail-category {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e8e8e8;
+  color: #333;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .book-like-button,
@@ -1256,7 +1271,7 @@
 
 .home-book-category {
   background-color: #e8e8e8;
-  color: #ff0000;
+  color: #333;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;

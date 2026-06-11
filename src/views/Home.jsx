@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
+// 카테고리 enum 매핑
+const CATEGORY_MAP = {
+  FICTION: '소설',
+  TECHNOLOGY: '기술/IT',
+  SELF_HELP: '자기계발',
+  ETC: '기타'
+}
+
+const getCategoryDisplay = (category) => {
+  return CATEGORY_MAP[category] || category
+}
+
 function Home({ books = [] }) {
   const [popularBooks, setPopularBooks] = useState([])
   const [loading, setLoading] = useState(true)
@@ -55,9 +67,6 @@ function Home({ books = [] }) {
     ? book.coverImageUrl
     : book.image || '/noImage.jpg'
         
-        // 카테고리 데이터 확인 (개발용)
-        console.log('Book data:', book)
-        
           return (
             <article className="home-book-card" key={book.id}>
               <img
@@ -70,7 +79,7 @@ function Home({ books = [] }) {
                 <div className="home-book-meta">
                   <span>작가: {book.author || '작가 미상'}</span>
                   {book.category && (
-                    <span className="home-book-category">{book.category}</span>
+                    <span className="home-book-category">{getCategoryDisplay(book.category)}</span>
                   )}
                 </div>
                 <em>좋아요 {book.likes || 0}</em>
