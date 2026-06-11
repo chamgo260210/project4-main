@@ -42,7 +42,7 @@ function Card({ item, onClick, resolveImageUrl, categoryMap }) {
   )
 }
 
-export default function List({ query = '', books = [], loading, isLast, onLoadMore, onDelete, onLike, onView, onSortChange, resolveImageUrl  }) {
+export default function List({ query = '', books = [], loading, isLast, onLoadMore, onDelete, onLike, onView, onSortChange, resolveImageUrl, selectedCategory, onCategoryChange }) {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
@@ -86,13 +86,17 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase()
+    let result = books
+    if (selectedCategory) {
+      result = result.filter(book => book.category === selectedCategory)
+    }
     if (!q) return books
     return books.filter((item) => {
       const title = item.title || ''
       const author = item.author || ''
       return title.toLowerCase().includes(q) || author.toLowerCase().includes(q)
     })
-  }, [query, books])
+  }, [query, books, selectedCategory])
 
   const isSearching = query.trim().length > 0
   const isEmpty = filteredItems.length === 0
@@ -128,6 +132,16 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
     <div className="list-page-wrap">
       {/* 정렬 버튼 영역 */}
       <div className="sort-container" style={{ marginBottom: '20px', textAlign: 'right' }}>
+        <select
+          onChange={(e) => onCategoryChange(e.target.value)}
+          value={selectedCategory}
+          style={{ padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
+        >
+          <option value="">전체 카테고리</option>
+          {Object.entries(categoryMap).map(([name, desc]) => (
+            <option key={name} value={name}>{desc}</option>
+          ))}
+        </select>
         <select 
           className="sort-select" 
           onChange={(e) => onSortChange(e.target.value)}
