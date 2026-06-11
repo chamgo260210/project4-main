@@ -1,40 +1,52 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import InputInfo from './InputInfo'
 import CreateImageForm from './CreateImageForm'
-import CreatePreviewCard from './CreateImagePreview'
 
-function CreateForm({ onAddBook,onCancel }) {
+function CreateForm({ onAddBook, onCancel }) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [quality, setQuality] = useState('medium')
   const [coverImageUrl, setCoverImageUrl] = useState('noImage.jpg')
+  const [categories, setCategories] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState('')
+
+  useEffect(() => {
+    fetch('http://localhost:8080/api/v1/books/categories')
+      .then((res) => res.json())
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("카테고리 로딩 실패:", err))
+  }, [])
 
   return (
     <section className="create-write-page">
-        <div className="create-write-form">
-          <h1 className="create-write-title">내용 생성</h1>
-          <InputInfo
-            title={title}
-            setTitle={setTitle}
-            author={author}
-            setAuthor={setAuthor}
-            content={content}
-            setContent={setContent}
-          />
-          <h1 className="create-write-title">썸네일 생성</h1>
-          <CreateImageForm
-            title={title}
-            author={author}
-            content={content}
-            onAddBook={onAddBook}
-            onCancel={onCancel}
-            quality={quality}
-            setQuality={setQuality}
-            coverImageUrl={coverImageUrl}
-            setCoverImageUrl={setCoverImageUrl}
-          />
-        </div>
+      <div className="create-write-form">
+        <h1 className="create-write-title">내용 생성</h1>
+        <InputInfo
+          title={title}
+          setTitle={setTitle}
+          author={author}
+          setAuthor={setAuthor}
+          content={content}
+          setContent={setContent}
+          categories={categories}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
+        <h1 className="create-write-title">썸네일 생성</h1>
+        <CreateImageForm
+          title={title}
+          author={author}
+          content={content}
+          onAddBook={onAddBook}
+          onCancel={onCancel}
+          quality={quality}
+          setQuality={setQuality}
+          coverImageUrl={coverImageUrl}
+          setCoverImageUrl={setCoverImageUrl}
+          selectedCategory={selectedCategory}
+        />
+      </div>
     </section>
   )
 }
