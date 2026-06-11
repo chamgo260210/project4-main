@@ -59,24 +59,13 @@ function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/v1/books/categories`)
       .then((res) => res.json())
-      .then((data) => setCategoryList(data))
+      .then((data) => setCategories(data))
       .catch((err) => console.error("카테고리 로딩 실패:", err))
   }, [])
 
   const [coverImageUrl, setCoverImageUrl] = useState(
     normalizeImageSrc(initialBook.coverImageUrl || initialBook.image, resolveImageUrl)
   )
-
-  useEffect(() => {
-    console.log("카테고리 fetch 시작")
-    fetch('http://localhost:8080/api/v1/books/categories')
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("카테고리 데이터:", data)
-        setCategories(data)
-      })
-      .catch((err) => console.error("카테고리 로딩 실패:", err))
-  }, [])
 
   const handlePreviewImage = async () => {
 //     const prompt = `
@@ -201,7 +190,7 @@ try {
           title={title}
           quality={quality}
           imageSize={imageSize}
-          category={category}
+          category={selectedCategory}
           resolveImageUrl = {resolveImageUrl}
         />
       </div>

@@ -1,23 +1,15 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-// 카테고리 enum 매핑
-const CATEGORY_MAP = {
-  FICTION: '소설',
-  TECHNOLOGY: '기술/IT',
-  SELF_HELP: '자기계발',
-  ETC: '기타'
-}
-
-const getCategoryDisplay = (category) => {
-  return CATEGORY_MAP[category] || category
-}
-
-function Card({ item, onClick, resolveImageUrl }) {
+function Card({ item, onClick, resolveImageUrl, categoryMap }) {
   const imageSrc =
     item.coverImageUrl && item.coverImageUrl.trim()
       ? resolveImageUrl(item.coverImageUrl)
       : item.image || '/noImage.jpg'
+
+  const getCategoryDisplay = (category) => {
+    return categoryMap[category] || category
+  }
 
   return (
     <article
@@ -54,9 +46,29 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
-  const observerRef = useRef() 
+  const [categoryMap, setCategoryMap] = useState({})
+  const observerRef = useRef()
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
   const selected = selectedId ? books.find((book) => book.id === selectedId) : null
+
+  const getCategoryDisplay = (category) => {
+    return categoryMap[category] || category
+  }
+
+  useEffect(() => {
+    // 카테고리 데이터 받아오기
+    fetch(`${API_BASE_URL}/api/v1/books/categories`)
+      .then((res) => res.json())
+      .then((data) => {
+        const map = {}
+        data.forEach(cat => {
+          map[cat.name] = cat.description
+        })
+        setCategoryMap(map)
+      })
+      .catch((err) => console.error("카테고리 로딩 실패:", err))
+  }, [API_BASE_URL])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -135,7 +147,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
       ) : (
         <section className="list-book-grid">
           {filteredItems.map((item) => (
-            <Card key={item.id} item={item} onClick={() => handleOpen(item)} resolveImageUrl={resolveImageUrl}/>
+            <Card key={item.id} item={item} onClick={() => handleOpen(item)} resolveImageUrl={resolveImageUrl} categoryMap={categoryMap}/>
           ))}
         </section>
       )}
