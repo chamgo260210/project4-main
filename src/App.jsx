@@ -18,6 +18,7 @@ function App() {
   const [initialLoading, setInitialLoading] = useState(true)
   const [isLast, setIsLast] = useState(false)
   const [sortBy, setSortBy] = useState('createdAt') // [추가]
+  const [selectedCategory, setSelectedCategory] = useState('')
 
   const navigate = useNavigate()
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
@@ -31,12 +32,13 @@ function App() {
   }
 
   // [수정] sort 인자를 받도록 변경
-  const fetchPage = useCallback(async (pageNum, sortOption = sortBy) => {
+  const fetchPage = useCallback(async (pageNum, sortOption = sortBy, categoryOption = selectedCategory) => {
     if (loading || (pageNum > 0 && isLast)) return
     setLoading(true)
 
     try {
-      const res = await fetch(`${bookURL}/page?page=${pageNum}&size=8&sortBy=${sortOption}`)
+      const categoryParam = categoryOption ? `&category=${categoryOption}` : ''
+      const res = await fetch(`${bookURL}/page?page=${pageNum}&size=8&sortBy=${sortOption}${categoryParam}`)
       if (!res.ok) { throw new Error('도서 목록을 불러오지 못했습니다.') }
       const data = await res.json()
       
@@ -70,6 +72,13 @@ function App() {
     setPage(0)
     setBooks([])
     fetchPage(0, newSort)
+  }
+
+  const handleCategoryChange = (newCategory) => {
+    setSelectedCategory(newCategory)
+    setPage(0)
+    setBooks([])
+    fetchPage(0, sortBy, newCategory)
   }
 
   const handleAddBook = async (newBook) => {
@@ -197,6 +206,8 @@ function App() {
                 onView={handleView}
                 onSortChange={handleSortChange} // [연결 완료]
                 resolveImageUrl={resolveImageUrl}
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryChange}
               />
             </>
           } />
