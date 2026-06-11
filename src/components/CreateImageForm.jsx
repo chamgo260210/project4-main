@@ -24,6 +24,7 @@ function CreateImageForm({ title,
                            coverImageUrl, setCoverImageUrl,
                            onAddBook, onCancel, selectedCategory }) {
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
   const [createdAt, setCreatedAt] = useState('')
   const [updatedAt, setUpdatedAt] = useState('')
   const [imageSize, setImageSize] = useState('768x1024')
@@ -71,7 +72,7 @@ function CreateImageForm({ title,
       //     output_format: 'png',
       //   }),
       // })
-      const res = await fetch(`http://localhost:8080/api/v1/books/cover?apiKey=${apiKey}&imageSize=${imageSize}`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/books/cover?apiKey=${encodeURIComponent(apiKey)}&imageSize=${imageSize}`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

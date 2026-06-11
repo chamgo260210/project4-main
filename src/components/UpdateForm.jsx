@@ -44,6 +44,7 @@ function getSavableImageUrl(imageUrl) {
 
 
 function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
   const [title, setTitle] = useState(initialBook.title || '')
   const [author, setAuthor] = useState(initialBook.author || '')
   const [content, setContent] = useState(initialBook.content || '')
@@ -55,7 +56,7 @@ function UpdateForm({ initialBook, onSubmit, onCancel, resolveImageUrl}) {
   const [imageLoading, setImageLoading] = useState(false)
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/v1/books/categories')
+    fetch(`${API_BASE_URL}/api/v1/books/categories`)
       .then((res) => res.json())
       .then((data) => setCategoryList(data))
       .catch((err) => console.error("카테고리 로딩 실패:", err))
@@ -101,7 +102,7 @@ try {
       //     output_format: 'png',
       //   }),
       // })
-      const res = await fetch(`http://localhost:8080/api/v1/books/cover?apiKey=${apiKey}&imageSize=${imageSize}`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/books/cover?apiKey=${encodeURIComponent(apiKey)}&imageSize=${imageSize}`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -145,7 +146,7 @@ try {
       title,
       author,
       content,
-      category,
+      category: selectedCategory,
       coverImageUrl: getSavableImageUrl(coverImageUrl),
     })
   }
