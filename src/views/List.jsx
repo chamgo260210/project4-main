@@ -55,27 +55,6 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
 
   const selected = selectedId ? books.find((book) => book.id === selectedId) : null
 
-  const COMMENT_STORAGE_KEY = 'bookComments'
-
-  const loadCommentsFromStorage = (bookId) => {
-    try {
-      const stored = JSON.parse(localStorage.getItem(COMMENT_STORAGE_KEY) || '{}')
-      return Array.isArray(stored[bookId]) ? stored[bookId] : []
-    } catch {
-      return []
-    }
-  }
-
-  const saveCommentsToStorage = (bookId, nextComments) => {
-    try {
-      const existing = JSON.parse(localStorage.getItem(COMMENT_STORAGE_KEY) || '{}')
-      existing[bookId] = nextComments
-      localStorage.setItem(COMMENT_STORAGE_KEY, JSON.stringify(existing))
-    } catch {
-      // ignore localStorage errors
-    }
-  }
-
   useEffect(() => {
     if (!selectedId) {
       setComments([])
@@ -84,22 +63,20 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
       return
     }
 
-    const storedComments = loadCommentsFromStorage(selectedId)
-    if (storedComments.length > 0) {
-      setComments(storedComments)
-    } else {
-      setComments(Array.isArray(selected?.comments) ? selected.comments : [])
-    }
+    fetch(`${API_BASE_URL}/api/v1/books/${selectedId}/comments`)
+      .then(res => res.json())
+      .then(data => setComments(data))
+      .catch(() => setComments([]))
+
     setCommentText('')
     setEditingCommentId(null)
-  }, [selectedId, selected])
+  }, [selectedId])
 
   const getCategoryDisplay = (category) => {
     return categoryMap[category] || category
   }
 
   useEffect(() => {
-    // 카테고리 데이터 받아오기
     fetch(`${API_BASE_URL}/api/v1/books/categories`)
       .then((res) => res.json())
       .then((data) => {
@@ -147,7 +124,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
     setSelectedId(item.id)
     setOpen(true)
     if (item && item.id) {
-      onView(item.id);
+      onView(item.id)
     }
   }
 
@@ -170,47 +147,41 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
     }
   }
 
-  const handleCommentSubmit = () => {
+  const handleCommentSubmit = async () => {
     if (!selected || !commentText.trim()) return
 
     if (editingCommentId) {
-      const nextComments = comments.map((comment) =>
-        comment.id === editingCommentId
-          ? { ...comment, text: commentText.trim(), updatedAt: new Date().toISOString() }
-          : comment
-      )
-      setComments(nextComments)
-      saveCommentsToStorage(selected.id, nextComments)
-      setCommentText('')
+      const res = await fetch(`${API_BASE_URL}/api/v1/comments/${editingCommentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ writer: '익명', content: commentText.trim() })
+      })
+      const updated = await res.json()
+      setComments(comments.map(c => c.id === editingCommentId ? updated : c))
       setEditingCommentId(null)
+      setCommentText('')
       return
     }
 
-    const nextComments = [
-      ...comments,
-      {
-        id: `${selected.id}-${Date.now()}`,
-        text: commentText.trim(),
-        author: '익명',
-        createdAt: new Date().toISOString(),
-      },
-    ]
-
-    setComments(nextComments)
-    saveCommentsToStorage(selected.id, nextComments)
+    const res = await fetch(`${API_BASE_URL}/api/v1/books/${selected.id}/comments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ writer: '익명', content: commentText.trim() })
+    })
+    const saved = await res.json()
+    setComments([saved, ...comments])
     setCommentText('')
   }
 
   const handleCommentEdit = (comment) => {
     setEditingCommentId(comment.id)
-    setCommentText(comment.text)
+    setCommentText(comment.content)
   }
 
-  const handleCommentDelete = (commentId) => {
+  const handleCommentDelete = async (commentId) => {
     if (!selected) return
-    const nextComments = comments.filter((comment) => comment.id !== commentId)
-    setComments(nextComments)
-    saveCommentsToStorage(selected.id, nextComments)
+    await fetch(`${API_BASE_URL}/api/v1/comments/${commentId}`, { method: 'DELETE' })
+    setComments(comments.filter(c => c.id !== commentId))
     if (editingCommentId === commentId) {
       setEditingCommentId(null)
       setCommentText('')
@@ -224,7 +195,6 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
 
   return (
     <div className="list-page-wrap">
-      {/* 정렬 버튼 영역 */}
       <div className="sort-container" style={{ marginBottom: '20px', textAlign: 'right' }}>
         <select
           onChange={(e) => onCategoryChange(e.target.value)}
@@ -236,11 +206,10 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
             <option key={name} value={name}>{desc}</option>
           ))}
         </select>
-        <select 
-          className="sort-select" 
+        <select
+          className="sort-select"
           onChange={(e) => onSortChange(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', backgroundColor: '#f0f0f0', border: '1px solid #ccc'
-           }}
+          style={{ padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
         >
           <option value="createdAt">최신순</option>
           <option value="views">조회순</option>
@@ -255,12 +224,12 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
       ) : (
         <section className="list-book-grid">
           {filteredItems.map((item) => (
-            <Card key={item.id} item={item} onClick={() => handleOpen(item)} resolveImageUrl={resolveImageUrl} categoryMap={categoryMap}/>
+            <Card key={item.id} item={item} onClick={() => handleOpen(item)} resolveImageUrl={resolveImageUrl} categoryMap={categoryMap} />
           ))}
         </section>
       )}
 
-      <div ref={observerRef} style={{ height: '1px' }} />  
+      <div ref={observerRef} style={{ height: '1px' }} />
       {loading && <p className="list-state-message">불러오는 중...</p>}
       {isLast && !loading && !isEmpty && <p className="list-state-message">모든 도서를 불러왔습니다 📚</p>}
 
@@ -309,10 +278,10 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                   comments.map((comment) => (
                     <div key={comment.id} className="comment-item">
                       <div className="comment-meta">
-                        <span className="comment-author">{comment.author}</span>
+                        <span className="comment-author">{comment.writer}</span>
                         <span className="comment-created">{new Date(comment.createdAt).toLocaleString('ko-KR')}</span>
                       </div>
-                      <p className="comment-text">{comment.text}</p>
+                      <p className="comment-text">{comment.content}</p>
                       <div className="comment-actions">
                         <button type="button" className="comment-button" onClick={() => handleCommentEdit(comment)}>
                           수정
