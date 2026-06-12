@@ -187,6 +187,7 @@ useEffect(() => {
     if (!selected || !commentText.trim()) return
 
     if (editingCommentId) {
+      if (!window.confirm('정말 이 댓글을 수정하시겠습니까?')) return
       const res = await fetch(`${API_BASE_URL}/api/v1/comments/${editingCommentId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -216,6 +217,7 @@ useEffect(() => {
 
   const handleCommentDelete = async (commentId) => {
     if (!selected) return
+    if (!window.confirm('정말 이 댓글을 삭제하시겠습니까?')) return
     await fetch(`${API_BASE_URL}/api/v1/comments/${commentId}`, { method: 'DELETE' })
     setComments(comments.filter(c => c.id !== commentId))
     if (editingCommentId === commentId) {
