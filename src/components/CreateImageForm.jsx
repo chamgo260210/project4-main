@@ -77,7 +77,7 @@ function CreateImageForm({ title, author, content, quality, setQuality,
         })
         const data = await res.json()
         setRecommendCategory(data.category)
-        setSelectedCategory(data.category)
+        setSelectedCategory(data.categoryName)
       } catch (err) {
         alert('카테고리 추천에 실패했습니다.')
         setRecommendCategory('')
@@ -95,6 +95,9 @@ function CreateImageForm({ title, author, content, quality, setQuality,
       return }
     if (!content || !content.trim()) { 
       alert('내용을 입력해주세요.'); 
+      return }
+    if (!selectedCategory) {
+      alert('카테고리를 선택해주세요.');
       return }
 
     const newBook = {
