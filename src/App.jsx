@@ -137,21 +137,39 @@ function App() {
 
     if (res.status === 429) {
       const data = await res.json().catch(() => ({}))
-      alert(data.message || '좋아요는 잠시 후 다시 시도해주세요.')
-      return
+
+      return {
+        ok: false,
+        retryAfterSeconds: data.retryAfterSeconds || 0,
+        message: data.message || '이미 좋아요를 눌렀습니다.',
+      }
     }
 
     if (!res.ok) throw new Error('좋아요 처리에 실패했습니다.')
 
     const updated = await res.json()
+
     setBooks((prevBooks) =>
-      prevBooks.map((book) => String(book.id) === String(id) ? updated : book)
+      prevBooks.map((book) =>
+        String(book.id) === String(id) ? updated : book
+      )
     )
+
+    return {
+      ok: true,
+      retryAfterSeconds: 30,
+      message: '좋아요가 반영되었습니다.',
+    }
   } catch (err) {
     console.error(err)
-    alert('좋아요 처리 중 오류가 발생했습니다.')
+
+    return {
+      ok: false,
+      retryAfterSeconds: 0,
+      message: '좋아요 처리 중 오류가 발생했습니다.',
     }
   }
+}
 
   const handleView = async (id) => {
     try {
