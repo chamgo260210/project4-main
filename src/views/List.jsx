@@ -125,15 +125,22 @@ useEffect(() => {
 
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase()
+
     let result = books
+
     if (selectedCategory) {
-      result = result.filter(book => book.category === selectedCategory)
+      result = result.filter((book) => book.category === selectedCategory)
     }
-    if (!q) return books
-    return books.filter((item) => {
+
+    if (!q) return result
+
+    return result.filter((item) => {
       const title = item.title || ''
       const author = item.author || ''
-      return title.toLowerCase().includes(q) || author.toLowerCase().includes(q)
+      return (
+        title.toLowerCase().includes(q) ||
+        author.toLowerCase().includes(q)
+      )
     })
   }, [query, books, selectedCategory])
 
@@ -237,21 +244,42 @@ useEffect(() => {
         <select
           onChange={(e) => onCategoryChange(e.target.value)}
           value={selectedCategory}
-          style={{ padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            backgroundColor: '#f0f0f0',
+            color: '#222',
+            border: '1px solid #ccc'
+          }}
         >
-          <option value="">전체 카테고리</option>
+          <option value="" style={{ color: '#222', backgroundColor: '#fff' }}> 전체 카테고리</option>
           {Object.entries(categoryMap).map(([name, desc]) => (
-            <option key={name} value={name}>{desc}</option>
+            <option
+              key={name}
+              value={name}
+              style={{ color: '#222', backgroundColor: '#fff' }}
+            >
+              {desc}</option>
           ))}
         </select>
         <select
           className="sort-select"
           onChange={(e) => onSortChange(e.target.value)}
-          style={{ padding: '8px 12px', borderRadius: '5px', cursor: 'pointer', fontSize: '14px', backgroundColor: '#f0f0f0', border: '1px solid #ccc' }}
+          style={{
+            padding: '8px 12px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            backgroundColor: '#f0f0f0',
+            color: '#222',
+            border: '1px solid #ccc'
+          }}
         >
-          <option value="createdAt">최신순</option>
-          <option value="views">조회순</option>
-          <option value="likes">좋아요순</option>
+          <option value="createdAt" style={{ color: '#222', backgroundColor: '#fff' }}>최신순</option>
+          <option value="views" style={{ color: '#222', backgroundColor: '#fff' }}>조회순</option>
+          <option value="likes" style={{ color: '#222', backgroundColor: '#fff' }}>좋아요순</option>
         </select>
       </div>
 
