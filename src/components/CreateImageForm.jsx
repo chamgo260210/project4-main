@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
 import Dropdown from './Dropdown'
 import MaskedApiKeyInput from './MaskedApiKeyInput'
+import '../App.css'
 
 function getSavableImageUrl(imageUrl) {
   const invalidPreviewImages = [
@@ -55,13 +56,20 @@ function CreateImageForm({ title, author, content, quality, setQuality,
   }
 
   const handleAutoCategory = async (e) => {
+
     if (!title || !title.trim() || !content || !content.trim()) {
       alert('제목과 내용을 먼저 입력해주세요.')
+      return
+    }
+
+    if(!apiKey || !apiKey.trim()) {
+      alert('API Key를 입력해주세요.')
       return
     }
     setAutoCategory(e.target.checked)
     if (e.target.checked) {
       try {
+        setRecommendCategory('분석 중...')
         const res = await fetch(`http://localhost:8080/api/v1/books/category-recommend?apiKey=${apiKey}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -72,11 +80,10 @@ function CreateImageForm({ title, author, content, quality, setQuality,
         setSelectedCategory(data.category)
       } catch (err) {
         alert('카테고리 추천에 실패했습니다.')
-        setAutoCategory(false)
+        setRecommendCategory('')
       }
-    } else {
-      setRecommendCategory('')
     }
+    
   }
 
   const handleSubmitBook = async () => {
@@ -131,21 +138,24 @@ function CreateImageForm({ title, author, content, quality, setQuality,
           </select>
         </div>
 
-        <div className="create-quality-group">
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 900, fontSize: '13px', color: '#111827' }}>
-            <input
-              type="checkbox"
-              checked={autoCategory}
-              onChange={handleAutoCategory}
-              style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-            />
-            AI 자동 카테고리 추천
-          </label>
-          {recommendCategory && (
-            <p style={{ margin: '6px 0 0', fontSize: '13px', color: '#526070' }}>
-              추천 카테고리: <strong style={{ color: '#d18b00' }}>{recommendCategory}</strong>
-            </p>
-          )}
+        <div className="create-quality-group-ai">
+          <div className="create-ai-header">
+            <span className="create-ai-title">AI 자동 카테고리 추천</span>
+            
+            {/* 추천받기 버튼 */}
+            <button
+              type="button"
+              className="category-recommend-btn"
+              onClick={() => handleAutoCategory({ target: { checked: true } })}
+            >
+              추천받기
+            </button>
+          </div>
+
+          {/* 🔗 CSS 파일에서 스타일을 주입받아 인풋창과 똑같이 렌더링되는 결과 박스 */}
+          <div className={`create-category-box ${recommendCategory ? 'recommended' : ''}`}>
+            {recommendCategory ? `추천 결과: ${recommendCategory}` : '없음'}
+          </div>
         </div>
 
         <div className="create-action-row">
