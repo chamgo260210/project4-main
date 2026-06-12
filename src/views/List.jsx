@@ -329,7 +329,13 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                 <textarea
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="댓글을 입력하세요."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleCommentSubmit()
+                    }
+                  }}
+                  placeholder="댓글을 입력하세요. (Enter: 등록, Shift+Enter: 줄바꿈)"
                   rows={3}
                 />
                 <div className="comment-form-actions">
