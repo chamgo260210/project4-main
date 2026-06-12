@@ -143,12 +143,16 @@ try {
   }
 
   const handleSubmit = () => {
+    const isNewGeneratedImage = coverImageUrl?.startsWith('data:image/')
+
     onSubmit({
       title,
       author,
       content,
       category: selectedCategory,
-      coverImageUrl: getSavableImageUrl(coverImageUrl),
+      coverImageUrl: isNewGeneratedImage
+        ? getSavableImageUrl(coverImageUrl)
+        : initialBook.coverImageUrl || '/noImage.jpg',
     })
   }
   
