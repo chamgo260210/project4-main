@@ -46,6 +46,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
+  const [likeCooldowns, setLikeCooldowns] = useState({})
   const [categoryMap, setCategoryMap] = useState({})
   const [commentText, setCommentText] = useState('')
   const [comments, setComments] = useState([])
@@ -54,23 +55,42 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
   const selected = selectedId ? books.find((book) => book.id === selectedId) : null
+  const likeCooldown = selected ? likeCooldowns[selected.id] || 0 : 0
 
   useEffect(() => {
-    if (!selectedId) {
-      setComments([])
-      setCommentText('')
-      setEditingCommentId(null)
-      return
-    }
-
-    fetch(`${API_BASE_URL}/api/v1/books/${selectedId}/comments`)
-      .then(res => res.json())
-      .then(data => setComments(data))
-      .catch(() => setComments([]))
-
+  if (!selectedId) {
+    setComments([])
     setCommentText('')
     setEditingCommentId(null)
-  }, [selectedId])
+    return
+  }
+
+  fetch(`${API_BASE_URL}/api/v1/books/${selectedId}/comments`)
+    .then(res => res.json())
+    .then(data => setComments(data))
+    .catch(() => setComments([]))
+
+  setCommentText('')
+  setEditingCommentId(null)
+}, [selectedId])
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setLikeCooldowns((prev) => {
+      const next = {}
+
+      Object.entries(prev).forEach(([bookId, seconds]) => {
+        if (seconds > 1) {
+          next[bookId] = seconds - 1
+        }
+      })
+
+      return next
+    })
+  }, 1000)
+
+  return () => clearInterval(timer)
+}, [])
 
   const getCategoryDisplay = (category) => {
     return categoryMap[category] || category
@@ -141,11 +161,27 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
     }
   }
 
-  const handleLikeClick = () => {
-    if (selected && onLike) {
-      onLike(selected.id)
-    }
+  const handleLikeClick = async () => {
+  if (!selected || !onLike) return
+  if (likeCooldown > 0) return
+
+  const result = await onLike(selected.id)
+
+  if (result?.retryAfterSeconds) {
+    setLikeCooldowns((prev) => ({
+      ...prev,
+      [selected.id]: result.retryAfterSeconds,
+    }))
+    return
   }
+
+  if (result?.ok) {
+    setLikeCooldowns((prev) => ({
+      ...prev,
+      [selected.id]: 30,
+    }))
+  }
+}
 
   const handleCommentSubmit = async () => {
     if (!selected || !commentText.trim()) return
@@ -266,7 +302,7 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
                 <span className="book-detail-category">{getCategoryDisplay(selected.category)}</span>
               )}
               <button type="button" className="modal-button modal-button--delete" onClick={handleDeleteClick}>삭제</button>
-              <button type="button" className="book-like-button" onClick={handleLikeClick}><span>😍</span> 좋아요</button>
+              <button type="button" className="book-like-button" onClick={handleLikeClick} disabled={likeCooldown > 0}><span>😍</span> {likeCooldown > 0 ? `${likeCooldown}초 후 가능` : '좋아요'}</button>
               <button type="button" className="modal-button modal-button--edit" onClick={() => navigate(`/update/${selected.id}`)}>수정</button>
             </div>
             <div className="book-detail-comments">
