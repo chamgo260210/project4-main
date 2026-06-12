@@ -47,10 +47,52 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
   const [open, setOpen] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
   const [categoryMap, setCategoryMap] = useState({})
+  const [commentText, setCommentText] = useState('')
+  const [comments, setComments] = useState([])
+  const [editingCommentId, setEditingCommentId] = useState(null)
   const observerRef = useRef()
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
   const selected = selectedId ? books.find((book) => book.id === selectedId) : null
+
+  const COMMENT_STORAGE_KEY = 'bookComments'
+
+  const loadCommentsFromStorage = (bookId) => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(COMMENT_STORAGE_KEY) || '{}')
+      return Array.isArray(stored[bookId]) ? stored[bookId] : []
+    } catch {
+      return []
+    }
+  }
+
+  const saveCommentsToStorage = (bookId, nextComments) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem(COMMENT_STORAGE_KEY) || '{}')
+      existing[bookId] = nextComments
+      localStorage.setItem(COMMENT_STORAGE_KEY, JSON.stringify(existing))
+    } catch {
+      // ignore localStorage errors
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedId) {
+      setComments([])
+      setCommentText('')
+      setEditingCommentId(null)
+      return
+    }
+
+    const storedComments = loadCommentsFromStorage(selectedId)
+    if (storedComments.length > 0) {
+      setComments(storedComments)
+    } else {
+      setComments(Array.isArray(selected?.comments) ? selected.comments : [])
+    }
+    setCommentText('')
+    setEditingCommentId(null)
+  }, [selectedId, selected])
 
   const getCategoryDisplay = (category) => {
     return categoryMap[category] || category
@@ -126,6 +168,58 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
     if (selected && onLike) {
       onLike(selected.id)
     }
+  }
+
+  const handleCommentSubmit = () => {
+    if (!selected || !commentText.trim()) return
+
+    if (editingCommentId) {
+      const nextComments = comments.map((comment) =>
+        comment.id === editingCommentId
+          ? { ...comment, text: commentText.trim(), updatedAt: new Date().toISOString() }
+          : comment
+      )
+      setComments(nextComments)
+      saveCommentsToStorage(selected.id, nextComments)
+      setCommentText('')
+      setEditingCommentId(null)
+      return
+    }
+
+    const nextComments = [
+      ...comments,
+      {
+        id: `${selected.id}-${Date.now()}`,
+        text: commentText.trim(),
+        author: '익명',
+        createdAt: new Date().toISOString(),
+      },
+    ]
+
+    setComments(nextComments)
+    saveCommentsToStorage(selected.id, nextComments)
+    setCommentText('')
+  }
+
+  const handleCommentEdit = (comment) => {
+    setEditingCommentId(comment.id)
+    setCommentText(comment.text)
+  }
+
+  const handleCommentDelete = (commentId) => {
+    if (!selected) return
+    const nextComments = comments.filter((comment) => comment.id !== commentId)
+    setComments(nextComments)
+    saveCommentsToStorage(selected.id, nextComments)
+    if (editingCommentId === commentId) {
+      setEditingCommentId(null)
+      setCommentText('')
+    }
+  }
+
+  const handleCommentCancel = () => {
+    setEditingCommentId(null)
+    setCommentText('')
   }
 
   return (
@@ -205,6 +299,50 @@ export default function List({ query = '', books = [], loading, isLast, onLoadMo
               <button type="button" className="modal-button modal-button--delete" onClick={handleDeleteClick}>삭제</button>
               <button type="button" className="book-like-button" onClick={handleLikeClick}><span>😍</span> 좋아요</button>
               <button type="button" className="modal-button modal-button--edit" onClick={() => navigate(`/update/${selected.id}`)}>수정</button>
+            </div>
+            <div className="book-detail-comments">
+              <h4>댓글</h4>
+              <div className="comment-list">
+                {comments.length === 0 ? (
+                  <p className="comment-empty">아직 댓글이 없습니다.</p>
+                ) : (
+                  comments.map((comment) => (
+                    <div key={comment.id} className="comment-item">
+                      <div className="comment-meta">
+                        <span className="comment-author">{comment.author}</span>
+                        <span className="comment-created">{new Date(comment.createdAt).toLocaleString('ko-KR')}</span>
+                      </div>
+                      <p className="comment-text">{comment.text}</p>
+                      <div className="comment-actions">
+                        <button type="button" className="comment-button" onClick={() => handleCommentEdit(comment)}>
+                          수정
+                        </button>
+                        <button type="button" className="comment-button comment-button--delete" onClick={() => handleCommentDelete(comment.id)}>
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="comment-form">
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="댓글을 입력하세요."
+                  rows={3}
+                />
+                <div className="comment-form-actions">
+                  {editingCommentId && (
+                    <button type="button" className="comment-button comment-button--cancel" onClick={handleCommentCancel}>
+                      취소
+                    </button>
+                  )}
+                  <button type="button" className="modal-button modal-button--comment" onClick={handleCommentSubmit}>
+                    {editingCommentId ? '수정 완료' : '등록'}
+                  </button>
+                </div>
+              </div>
             </div>
           </section>
         </div>
