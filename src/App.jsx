@@ -60,7 +60,7 @@ function App() {
       setLoading(false)
       setInitialLoading(false)
     }
-  }, [loading, isLast, bookURL, sortBy])
+  }, [loading, isLast, bookURL, sortBy, selectedCategory])
 
   useEffect(() => {
     fetchPage(0)
@@ -88,16 +88,17 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newBook),
       })
+
       if (!res.ok) throw new Error('도서 등록에 실패했습니다.')
-      const saved = await res.json()
-      setBooks((prevBooks) => [saved, ...prevBooks])
+
       alert('도서가 등록되었습니다.')
       navigate('/list')
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setPage(0)
+      setBooks([])
+      setIsLast(false)
+      await fetchPage(0)
     } catch (err) {
       alert('도서 등록에 실패했습니다.')
-    } finally {
-      await fetchPage(0)
     }
   }
 
@@ -120,14 +121,16 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`${bookURL}/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('삭제에 실패했습니다.');
-      setBooks((prevBooks) => prevBooks.filter((b) => String(b.id) !== String(id)));
-      alert('도서를 삭제했습니다');
-    } catch (err) {
-      alert('도서 삭제에 실패했습니다');
-    } finally {
+      const res = await fetch(`${bookURL}/${id}`, { method: 'DELETE' })
+      if (!res.ok) throw new Error('삭제에 실패했습니다.')
+
+      alert('도서를 삭제했습니다')
+      setPage(0)
+      setBooks([])
+      setIsLast(false)
       await fetchPage(0)
+    } catch (err) {
+      alert('도서 삭제에 실패했습니다')
     }
   }
 

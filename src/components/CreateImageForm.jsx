@@ -18,6 +18,7 @@ function CreateImageForm({ title, author, content, quality, setQuality,
                            coverImageUrl, setCoverImageUrl,
                            onAddBook, onCancel, selectedCategory, setSelectedCategory }) {
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
   const [imageSize, setImageSize] = useState('768x1024')
   const [apiKey, setApiKey] = useState('')
   const [loading, setLoading] = useState(false)
@@ -29,7 +30,7 @@ function CreateImageForm({ title, author, content, quality, setQuality,
       alert('이미지 생성 시, 비용이 발생할 수 있습니다.')
       setLoading(true)
       setCoverImageUrl('/test_src/loading.gif')
-      const res = await fetch(`http://localhost:8080/api/v1/books/cover?apiKey=${apiKey}&imageSize=${imageSize}`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/books/cover?apiKey=${encodeURIComponent(apiKey)}&imageSize=${imageSize}` , {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, content }),
@@ -70,7 +71,7 @@ function CreateImageForm({ title, author, content, quality, setQuality,
     if (e.target.checked) {
       try {
         setRecommendCategory('분석 중...')
-        const res = await fetch(`http://localhost:8080/api/v1/books/category-recommend?apiKey=${apiKey}`, {
+        const res = await fetch(`${API_BASE_URL}/api/v1/books/category-recommend?apiKey=${encodeURIComponent(apiKey)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title, content })
